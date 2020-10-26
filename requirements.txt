@@ -3,6 +3,7 @@ git+https://github.com/ildoonet/pytorch-gradual-warmup-lr.git@08f7d5e
 git+https://github.com/ildoonet/pystopwatch2.git
 git+https://github.com/hyperopt/hyperopt.git
 
+gorilla
 pretrainedmodels
 tqdm
 tensorboardx
