@@ -63,7 +63,7 @@ def train_model(config, dataroot, augment, cv_ratio_test, cv_fold, save_path=Non
     C.get().conf = config
     C.get()['aug'] = augment
 
-    result = train_and_eval(None, dataroot, cv_ratio_test, cv_fold, save_path=save_path, only_eval=skip_exist)
+    result = train_and_eval("search_stage", None, dataroot, cv_ratio_test, cv_fold, save_path=save_path, only_eval=skip_exist)
     return C.get()['model']['type'], cv_fold, result
 
 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     logger.info('configuration...')
     logger.info(json.dumps(C.get().conf, sort_keys=True, indent=4))
     logger.info('initialize ray...')
-    ray.init(redis_address=args.redis)
+    ray.init(address=args.redis)
 
     num_result_per_cv = 10
     cv_num = 5
