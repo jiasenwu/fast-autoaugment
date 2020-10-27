@@ -226,7 +226,12 @@ if __name__ == '__main__':
         for cv_fold in range(cv_num):
             name = "search_%s_%s_fold%d_ratio%.1f" % (C.get()['dataset'], C.get()['model']['type'], cv_fold, args.cv_ratio)
             print(name)
-            register_trainable(name, lambda augs, rpt: eval_tta(copy.deepcopy(copied_c), augs, rpt))
+
+            # def train(augs, rpt):
+            def train(config, reporter):
+                return eval_tta(copy.deepcopy(copied_c), config, reporter)
+
+            register_trainable(name, train)
             algo = HyperOptSearch(space, max_concurrent=4*20, reward_attr=reward_attr)
 
             exp_config = {
