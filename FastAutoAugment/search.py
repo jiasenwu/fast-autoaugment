@@ -12,8 +12,8 @@ import ray
 import gorilla
 from ray.tune.trial import Trial
 from ray.tune.trial_runner import TrialRunner
-from ray.tune.suggest import HyperOptSearch
-from ray.tune import register_trainable, run_experiments
+from ray.tune.suggest.hyperopt import HyperOptSearch
+from ray.tune import register_trainable, run
 from tqdm import tqdm
 
 from FastAutoAugment.archive import remove_deplicates, policy_decoder
@@ -232,22 +232,26 @@ if __name__ == '__main__':
                 return eval_tta(copy.deepcopy(copied_c), config, reporter)
 
             register_trainable(name, train)
-            algo = HyperOptSearch(space, max_concurrent=4*20, reward_attr=reward_attr)
+            algo = HyperOptSearch(space, max_concurrent=4*20, metric=reward_attr)
 
-            exp_config = {
-                name: {
-                    'run': name,
-                    'num_samples': 4 if args.smoke_test else args.num_search,
-                    'resources_per_trial': {'gpu': 1},
-                    'stop': {'training_iteration': args.num_policy},
-                    'config': {
-                        'dataroot': args.dataroot, 'save_path': paths[cv_fold],
-                        'cv_ratio_test': args.cv_ratio, 'cv_fold': cv_fold,
-                        'num_op': args.num_op, 'num_policy': args.num_policy
-                    },
-                }
-            }
-            results = run_experiments(exp_config, search_alg=algo, scheduler=None, verbose=0, queue_trials=True, resume=args.resume, raise_on_failed_trial=False)
+            results = run(
+                train,
+                name = name,
+                config = {
+                    'dataroot': args.dataroot, 'save_path': paths[cv_fold],
+                    'cv_ratio_test': args.cv_ratio, 'cv_fold': cv_fold,
+                    'num_op': args.num_op, 'num_policy': args.num_policy
+                },
+                num_samples=4 if args.smoke_test else args.num_search,
+                resources_per_trial={'gpu': 1},
+                stop={'training_iteration': args.num_policy},
+                search_alg=algo,
+                scheduler=None,
+                verbose=0,
+                queue_trials=True,
+                resume=args.resume,
+                raise_on_failed_trial=False
+            )
             print()
             results = [x for x in results if x.last_result is not None]
             results = sorted(results, key=lambda x: x.last_result[reward_attr], reverse=True)
