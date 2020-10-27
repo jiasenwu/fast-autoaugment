@@ -232,12 +232,12 @@ if __name__ == '__main__':
                 return eval_tta(copy.deepcopy(copied_c), config, reporter)
 
             register_trainable(name, train)
-            algo = HyperOptSearch(space, max_concurrent=4*20, metric=reward_attr)
+            algo = HyperOptSearch(space, max_concurrent=4*20, metric=reward_attr, mode="max")
 
             results = run(
                 train,
-                name = name,
-                config = {
+                name=name,
+                config={
                     'dataroot': args.dataroot, 'save_path': paths[cv_fold],
                     'cv_ratio_test': args.cv_ratio, 'cv_fold': cv_fold,
                     'num_op': args.num_op, 'num_policy': args.num_policy
