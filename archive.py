@@ -293,15 +293,15 @@ def fa_reduced_svhn():
     return p
 
 
-def policy_decoder(augment, num_policy, num_op):
+def policy_decoder(augment, num_policy, num_op, prefix=""):
     op_list = augment_list(False)
     policies = []
     for i in range(num_policy):
         ops = []
         for j in range(num_op):
-            op_idx = augment['policy_%d_%d' % (i, j)]
-            op_prob = augment['prob_%d_%d' % (i, j)]
-            op_level = augment['level_%d_%d' % (i, j)]
+            op_idx = augment['%spolicy_%d_%d' % (prefix, i, j)]
+            op_prob = augment['%sprob_%d_%d' % (prefix, i, j)]
+            op_level = augment['%slevel_%d_%d' % (prefix, i, j)]
             ops.append((op_list[op_idx][0].__name__, op_prob, op_level))
         policies.append(ops)
     return policies

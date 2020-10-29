@@ -253,16 +253,24 @@ if __name__ == '__main__':
                 raise_on_failed_trial=False
             )
             print()
-            results = [x for x in results if x.last_result is not None]
-            results = sorted(results, key=lambda x: x.last_result[reward_attr], reverse=True)
+            df = results.results_df
+
+            import pickle
+            with open("results.pickle", "wb") as fp:
+                pickle.dump(results, fp)
+            df.to_csv("df.csv")
+
+            results = df.sort_values(by=reward_attr, ascending=False)
+            # results = [x for x in results if x.last_result is not None]
+            # results = sorted(results, key=lambda x: x.last_result[reward_attr], reverse=True)
 
             # calculate computation usage
-            for result in results:
-                total_computation += result.last_result['elapsed_time']
+            for _, result in results.iterrows():
+                total_computation += result['elapsed_time']
 
-            for result in results[:num_result_per_cv]:
-                final_policy = policy_decoder(result.config, args.num_policy, args.num_op)
-                logger.info('loss=%.12f top1_valid=%.4f %s' % (result.last_result['minus_loss'], result.last_result['top1_valid'], final_policy))
+            for _, result in results.iloc[:num_result_per_cv].iterrows():
+                final_policy = policy_decoder(result, args.num_policy, args.num_op, prefix="config.")
+                logger.info('loss=%.12f top1_valid=%.4f %s' % (result['minus_loss'], result['top1_valid'], final_policy))
 
                 final_policy = remove_deplicates(final_policy)
                 final_policy_set.extend(final_policy)
