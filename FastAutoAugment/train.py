@@ -20,10 +20,9 @@ from tqdm import tqdm
 from theconf import Config as C, ConfigArgumentParser
 
 from FastAutoAugment.common import get_logger, EMA, add_filehandler
-from FastAutoAugment.data import get_dataloaders
 from FastAutoAugment.lr_scheduler import adjust_learning_rate_resnet
 from FastAutoAugment.metrics import accuracy, Accumulator, CrossEntropyLabelSmooth
-from FastAutoAugment.networks import get_model, num_class
+from FastAutoAugment.networks import get_model
 from FastAutoAugment.tf_port.rmsprop import RMSpropTF
 from FastAutoAugment.aug_mixup import CrossEntropyMixUpLabelSmooth, mixup
 from warmup_scheduler import GradualWarmupScheduler
@@ -107,7 +106,9 @@ def run_epoch(model, loader, loss_fn, optimizer, desc_default='', epoch=0, write
     return metrics
 
 
-def train_and_eval(args_save, tag, dataroot, test_ratio=0.0, cv_fold=0, reporter=None, metric='last', save_path=None, only_eval=False, local_rank=-1, evaluation_interval=5):
+def train_and_eval(args_save, tag, dataroot, test_ratio=0.0, cv_fold=0, reporter=None, metric='last', save_path=None, only_eval=False, local_rank=-1, evaluation_interval=5, get_dataloaders=None, num_class=None):
+    assert get_dataloaders is not None
+    assert num_class is not None
     total_batch = C.get()["batch"]
     if local_rank >= 0:
         dist.init_process_group(backend='nccl', init_method='env://', world_size=int(os.environ['WORLD_SIZE']))

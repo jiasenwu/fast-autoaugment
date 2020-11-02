@@ -1,11 +1,12 @@
+import json
 import copy
 import os
 import sys
 import time
 from collections import OrderedDict, defaultdict
 
+from pystopwatch2 import PyStopwatch
 import torch
-
 import numpy as np
 from hyperopt import hp
 import ray
@@ -63,7 +64,9 @@ def train_model(config, dataroot, augment, cv_ratio_test, cv_fold, save_path=Non
     C.get().conf = config
     C.get()['aug'] = augment
 
-    result = train_and_eval("search_stage", None, dataroot, cv_ratio_test, cv_fold, save_path=save_path, only_eval=skip_exist)
+    # pass the get_dataloaders and num_class instead being imported in the train.py. In this way, these two functions
+    # can be monkey-patched.
+    result = train_and_eval("search_stage", None, dataroot, cv_ratio_test, cv_fold, save_path=save_path, only_eval=skip_exist, get_dataloaders=get_dataloaders, num_class=num_class)
     return C.get()['model']['type'], cv_fold, result
 
 
@@ -134,9 +137,7 @@ def eval_tta(config, augment, reporter):
     return metrics['correct']
 
 
-if __name__ == '__main__':
-    import json
-    from pystopwatch2 import PyStopwatch
+def main():
     w = PyStopwatch()
 
     parser = ConfigArgumentParser(conflict_handler='resolve')
@@ -329,3 +330,7 @@ if __name__ == '__main__':
     logger.info('processed in %.4f secs' % w.pause('train_aug'))
 
     logger.info(w)
+
+
+if __name__ == '__main__':
+    main()
