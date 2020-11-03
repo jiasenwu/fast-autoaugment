@@ -70,7 +70,7 @@ def train_model(config, dataroot, augment, cv_ratio_test, cv_fold, save_path=Non
     return C.get()['model']['type'], cv_fold, result
 
 
-def eval_tta(config, augment, reporter):
+def eval_tta(config, augment, reporter, num_class):
     C.get()
     C.get().conf = config
     cv_ratio_test, cv_fold, save_path = augment['cv_ratio_test'], augment['cv_fold'], augment['save_path']
@@ -230,7 +230,7 @@ def main():
 
             # def train(augs, rpt):
             def train(config, reporter):
-                return eval_tta(copy.deepcopy(copied_c), config, reporter)
+                return eval_tta(copy.deepcopy(copied_c), config, reporter, num_class)
 
             register_trainable(name, train)
             algo = HyperOptSearch(space, max_concurrent=4*20, metric=reward_attr, mode="max")
