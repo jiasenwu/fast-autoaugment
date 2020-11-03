@@ -97,7 +97,7 @@ def train_model(
     return C.get()["model"]["type"], cv_fold, result
 
 
-def eval_tta(config, augment, reporter, num_class, get_model):
+def eval_tta(config, augment, reporter, num_class, get_model, get_dataloaders):
     C.get()
     C.get().conf = config
     cv_ratio_test, cv_fold, save_path = (
@@ -326,7 +326,7 @@ def main():
             # def train(augs, rpt):
             def train(config, reporter):
                 return eval_tta(
-                    copy.deepcopy(copied_c), config, reporter, num_class, get_model
+                    copy.deepcopy(copied_c), config, reporter, num_class, get_model, get_dataloaders
                 )
 
             register_trainable(name, train)
